@@ -11,7 +11,7 @@ import Foundation
 
 class CharacterController: ObservableObject {
     @Published var characters = [Character]()
-    @Published var character: CharacterDetail
+    @Published var character: CharacterDetail?
     
     init() {
         self.character = CharacterDetail(id: 0, name: "", status: "", species: "", type: "", gender: "", origin: Origin(name: ""), location: Location(name: ""), image: "", episode: [Episodes]())
@@ -81,7 +81,7 @@ class CharacterController: ObservableObject {
         }
         dispatchGroup.notify(queue: .main) {
             print(episodes)
-            self.character.episode = episodes
+            self.character?.episode = episodes
         }
     }
 

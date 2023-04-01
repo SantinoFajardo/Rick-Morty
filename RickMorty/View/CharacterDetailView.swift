@@ -18,8 +18,6 @@ struct CharacterDetailView: View {
     }
     @State private var isSheet = false
     @State private var selectedEpisode: Episodes?
-    
-    
     var body: some View {
         
         ZStack {
@@ -31,7 +29,7 @@ struct CharacterDetailView: View {
                     Text("Gender: \(character.gender)").foregroundColor(.white)
                     Text("Specie: \(character.species)").foregroundColor(.white)
                     Text("Status: \(character.status)").foregroundColor(.white)
-                    if let episodes = controller.character.episode {
+                    if let episodes = controller.character?.episode {
                         Text("Episodes where appear:").foregroundColor(.white).font(.title2).bold().padding(.top,10).padding(.bottom,-10)
                         VStack {
                             List{
@@ -61,7 +59,6 @@ struct CharacterDetailView: View {
             }.frame(maxHeight: .infinity,alignment: .top).padding(.top)
             
         }.task {
-            controller.getCharacterDetail(id: self.character.id)
             controller.getEpisodes(for: self.stringEpisodes)
             self.characterDetail = controller.character
         }

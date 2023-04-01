@@ -12,6 +12,8 @@ struct CharacterListView: View {
     @State private var selectedCharacterId: Character?
     @State private var sheet = false
     @State private var color = Color("Black")
+    @State private var isLoading = false
+    
     var body: some View{
         ZStack {
             NavigationView {
@@ -36,37 +38,63 @@ struct CharacterListView: View {
                                     
                                 }
                                 Button(action: {
-                                    self.sheet = true
-                                    selectedCharacterId = character
+                                    self.selectedCharacterId = character
+                                    if let _ = controller.character, self.isLoading != true {
+                                        self.sheet = true
+                                        
+                                    }
                                 }) {
                                     VStack{
                                         Image(systemName: "greaterthan")
                                             .foregroundColor(.gray)
                                     }
                                     .frame(maxWidth: .infinity,alignment: .trailing)
-                                }.sheet(item: $selectedCharacterId){character in
-                                    if let character = character {
-                                        CharacterDetailView(character: character,episodes: character.episode)
-                                            .presentationDetents([.fraction(0.20)])
-                                    }
+                                }.task {
+                                    self.isLoading = true
+                                    controller.getCharacterDetail(id: character.id)
+                                    self.isLoading = false
                                 }
                             }.frame(height:75).listRowBackground(Color("Black"))
                         }
                     }
                 }.padding(.top,20)
-                .background(Color("Background"))
-                .scrollContentBackground(.hidden)
-                .sheet(item: $selectedCharacterId){character in
-                    if let character = character {
-                        CharacterDetailView(character:character,episodes: character.episode)
+                    .background(Color("Background"))
+                    .scrollContentBackground(.hidden)
+                    .sheet(isPresented:$sheet){
+                        if let character = selectedCharacterId, let _ = controller.character,self.isLoading != true {
+                            ZStack {
+                                Color("Black").ignoresSafeArea()
+                                VStack{
+                                    VStack{
+                                        Button(action:{
+                                            self.sheet = false
+                                        }){
+                                            Image(systemName: "xmark")
+                                                .foregroundColor(.white)
+                                                .padding()
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity,alignment: .trailing)
+                                    
+                                    CharacterDetailView(character:character,episodes: character.episode)
+                                }
+                            }
+                            .presentationDetents([.fraction(0.40),.fraction(1)])
+                            .presentationDragIndicator(.visible)
+                        }else{
+                            ZStack{
+                                Color("Black").ignoresSafeArea()
+                                Text("Loading...")
+                                
+                            }
+                        }
                     }
-                }
-                .task {
-                    controller.getCharacters()
-                }
+                    .task {
+                        controller.getCharacters()
+                    }
             }.overlay(
                 NavigationBar()
-        )
+            )
         }
         
     }
@@ -122,7 +150,7 @@ struct NavigationBar: View {
                 .blur(radius: 10)
                 .background(.ultraThinMaterial)
                 .blur(radius: 10)
-
+            
             Image("Logo")
                 .resizable()
                 .frame(width: 200,height: 75)
